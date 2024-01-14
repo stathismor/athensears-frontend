@@ -1,6 +1,8 @@
 import type { MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
+import type { Gig } from "../types";
 import { useLoaderData } from "@remix-run/react";
 import { get } from "../utils";
+import { formatDate } from "../date";
 
 export const meta: MetaFunction = () => {
   return [
@@ -9,18 +11,19 @@ export const meta: MetaFunction = () => {
   ];
 };
 
-type Gig = {
-  date: string;
-  artist: string;
-  venue: { name: string };
-  ticketUrl: string;
-  price: string;
-};
+function formatGigs(gigs: Gig[]) {
+  return gigs.map((gig) => ({
+    ...gig,
+    date: formatDate(gig.date),
+  }));
+}
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const result = await get(request);
 
-  return { gigs: result || [] };
+  const gigs = formatGigs(result || []);
+
+  return { gigs };
 };
 
 export default function Index() {
