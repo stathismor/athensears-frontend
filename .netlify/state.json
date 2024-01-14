@@ -1,0 +1,19 @@
+{
+	"geolocation": {
+		"data": {
+			"city": "Hackney",
+			"country": {
+				"code": "GB",
+				"name": "United Kingdom"
+			},
+			"subdivision": {
+				"code": "ENG",
+				"name": "England"
+			},
+			"timezone": "Europe/London",
+			"latitude": 51.5384,
+			"longitude": -0.039
+		},
+		"timestamp": 1705161971256
+	}
+}
