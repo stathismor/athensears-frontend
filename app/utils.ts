@@ -1,6 +1,6 @@
 export async function get(request: Request) {
   const PROJECT_ID = "zk524vne";
-  const DATASET = "production";
+  const DATASET = process.env.SANITY_STUDIO_API_DATASET;
   const QUERY = encodeURIComponent(`*[_type=="gig"]{
     date,
     artist,

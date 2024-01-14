@@ -20,7 +20,7 @@ type Gig = {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const result = await get(request);
 
-  return { gigs: result };
+  return { gigs: result || [] };
 };
 
 export default function Index() {
@@ -82,7 +82,6 @@ export default function Index() {
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       {gig.venue.name}
                     </td>
-
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
                       <a
                         href={gig.ticketUrl}
