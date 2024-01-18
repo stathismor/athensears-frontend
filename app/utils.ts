@@ -1,4 +1,4 @@
-export async function get(request: Request) {
+export async function getGigs(request: Request) {
   const PROJECT_ID = "zk524vne";
   const DATASET = process.env.SANITY_STUDIO_API_DATASET;
   const QUERY = encodeURIComponent(`*[_type=="gig"]{

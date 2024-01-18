@@ -1,30 +1,79 @@
 import type { MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
-import type { Gig } from "../types";
 import { useLoaderData } from "@remix-run/react";
-import { get } from "../utils";
-import { formatDate } from "../date";
+import { getGigs } from "../utils";
+import { formatDate } from "../lib/date";
+
+export type Gig = {
+  date: string;
+  artist: string;
+  venue: { name: string };
+  ticketUrl: string;
+  price: number;
+};
+
+type GigGroup = {
+  month: string;
+  gigs: Gig[];
+};
 
 export const meta: MetaFunction = () => {
   return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
+    { title: "ATHENSEARS" },
+    { name: "description", content: "Athens ears" },
   ];
 };
 
-function formatGigs(gigs: Gig[]) {
-  return gigs.map((gig) => ({
-    ...gig,
-    date: formatDate(gig.date),
-  }));
+function sortGigs(gigs: Gig[]) {
+  return gigs.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+}
+
+function groupGigs(gigs: Gig[]): GigGroup[] {
+  const groupedByMonth: Record<string, GigGroup> = {};
+
+  gigs.forEach((gig) => {
+    const month = new Date(gig.date).toLocaleString("default", {
+      month: "long",
+    });
+    groupedByMonth[month] ||= { month, gigs: [] };
+    groupedByMonth[month].gigs.push(gig);
+  });
+
+  return Object.values(groupedByMonth);
 }
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const result = await get(request);
-
-  const gigs = formatGigs(result || []);
+  const result = await getGigs(request);
+  const sortedGigs = sortGigs(result || []);
+  const gigs = groupGigs(sortedGigs);
 
   return { gigs };
 };
+
+function renderGig(gig: Gig) {
+  return (
+    <tr key={gig.date} className="even:bg-gray-50">
+      <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-3">
+        {formatDate(gig.date)}
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        {gig.artist}
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        {gig.venue.name}
+      </td>
+      <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
+        <a
+          href={gig.ticketUrl}
+          className="text-indigo-600 hover:text-indigo-900"
+        >
+          &euro;{gig.price}
+        </a>
+      </td>
+    </tr>
+  );
+}
 
 export default function Index() {
   const { gigs } = useLoaderData<typeof loader>();
@@ -74,26 +123,18 @@ export default function Index() {
                 </tr>
               </thead>
               <tbody className="bg-white">
-                {gigs.map((gig: Gig) => (
-                  <tr key={gig.date} className="even:bg-gray-50">
-                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-3">
-                      {gig.date}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {gig.artist}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      {gig.venue.name}
-                    </td>
-                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-                      <a
-                        href={gig.ticketUrl}
-                        className="text-indigo-600 hover:text-indigo-900"
+                {gigs.map((gigGroup: GigGroup) => (
+                  <>
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="font-semibold py-2 pl-4 text-lg"
                       >
-                        &euro;{gig.price}
-                      </a>
-                    </td>
-                  </tr>
+                        {gigGroup.month}
+                      </td>
+                    </tr>
+                    {gigGroup.gigs.map((gig: Gig) => renderGig(gig))}
+                  </>
                 ))}
               </tbody>
             </table>
