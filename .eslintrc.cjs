@@ -70,6 +70,10 @@ module.exports = {
         "plugin:import/recommended",
         "plugin:import/typescript",
       ],
+      rules: {
+        // Add import sorting rule
+        "import/order": ["error", { "newlines-between": "always" }],
+      },
     },
 
     // Node

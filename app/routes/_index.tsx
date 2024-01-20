@@ -1,10 +1,12 @@
 import type { MetaFunction, LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
-import { getGigs } from "../utils";
 import { Fragment } from "react";
+
+import { getGigs } from "../utils";
 import type { GigType, GigGroupType } from "../types";
-import { Gig } from "./gig";
 import { sortGigs, groupGigs } from "../lib/gig";
+
+import { Gig } from "./gig";
 
 export const meta: MetaFunction = () => {
   return [
@@ -20,6 +22,16 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
   return { gigs };
 };
+
+function renderMonth(gigGroup: GigGroupType) {
+  return (
+    <tr>
+      <td colSpan={4} className="font-semibold py-2 pl-4 text-lg">
+        {gigGroup.month}
+      </td>
+    </tr>
+  );
+}
 
 export default function Index() {
   const { gigs } = useLoaderData<typeof loader>();
@@ -71,6 +83,7 @@ export default function Index() {
               <tbody className="bg-white">
                 {gigs.map((gigGroup: GigGroupType) => (
                   <Fragment key={gigGroup.month}>
+                    {renderMonth(gigGroup)}
                     {gigGroup.gigs.map((gig: GigType) => (
                       <Gig key={gig.date} gig={gig} />
                     ))}
